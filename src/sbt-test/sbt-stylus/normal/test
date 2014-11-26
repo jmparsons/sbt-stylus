@@ -1,15 +1,51 @@
-# Compile a less file
-
+# Compile a stylus file
+> clean
 > set JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
+> 'set includeFilter in (Assets, StylusKeys.stylus) := "main.styl" | "inline.styl"'
 > set StylusKeys.useNib in Assets := true
-
 > assets
 $ exists target/web/public/main/css/main.css
 > checkMainCssContents
 
-# Compile with compression
+# Compile include imported css
+> clean
+> set StylusKeys.includeCSS in Assets := true
+> assets
+$ exists target/web/public/main/css/main.css
+> checkMainCssContentsIncludeCSS
 
+# Compile images as data uri's
+> clean
+> set StylusKeys.inlineImages in Assets := true
+> assets
+$ exists target/web/public/main/css/main.css
+> checkMainCssContentsInline
+
+# Compile images as data uri's using data-uri inline function
+> clean
+> 'set StylusKeys.inlineFunction in Assets := "data-uri"'
+> assets
+$ exists target/web/public/main/css/inline.css
+> checkMainCssContentsInlineFunction
+
+# Compile images as data uri's under 25kb
+> clean
+> set StylusKeys.inlineThreshold in Assets := 25000
+> assets
+$ exists target/web/public/main/css/inline.css
+> checkMainCssContentsInlineThreshold
+
+# Compile sourcemaps
+> clean
+> set StylusKeys.sourceMap in Assets := true
+> assets
+$ exists target/web/public/main/css/main.css.map
+> checkMainCssContentsSourceMap
+
+# Compile compressed
+> clean
 > set StylusKeys.compress in Assets := true
 > assets
--$ exists target/web/public/main/css/main.css
 $ exists target/web/public/main/css/main.min.css
+$ exists target/web/public/main/css/main.min.css.map
+> checkMainCssContentsCompressed

@@ -14,9 +14,7 @@ var promised = {
     writeFile: nodefn.lift(fs.writeFile)
   };
 
-
 var args = jst.args(process.argv);
-
 
 function processor(input, output) {
 
@@ -28,6 +26,31 @@ function processor(input, output) {
 
     var style = stylus(contents, options)
     if (options.useNib) style.use(nib());
+    if (options.includeCSS) style.set('include css', true);
+
+    if (options.inlineImages) {
+      style.define(options.inlineFunction, stylus.url({
+        paths : [path.dirname(output)],
+        limit : options.inlineThreshold
+      }));
+    }
+
+    var sourcemap = null;
+    if (options.sourceMap) {
+      sourcemap = {};
+    }
+    if (options.sourceMapInline) {
+      sourcemap = sourcemap || {};
+      sourcemap.inline = true;
+    }
+    if (options.sourceMapRoot) {
+      sourcemap = sourcemap || {};
+      sourcemap.sourceRoot = options.sourceMapRoot;
+    }
+    if (sourcemap) {
+      style.set('filename', input);
+      style.set('sourcemap', sourcemap);
+    }
 
     style.render(function (err, css) {
         if (err) {
@@ -40,19 +63,28 @@ function processor(input, output) {
         }
       });
     return result;
-    
+
   }).then(function(result) {
     return promised.mkdirp(path.dirname(output)).yield(result);
 
   }).then(function(result) {
+    if (result.style.options.compress && result.style.sourcemap && !result.style.options.sourceMapInline) {
+      result.css = result.css.replace(/\.css\.map/g, ".min.css.map");
+    }
     return promised.writeFile(output, result.css, "utf8").yield(result);
+
+  }).then(function(result) {
+    if (result.style.sourcemap && !result.style.options.sourceMapInline) {
+      return promised.writeFile(output + ".map", JSON.stringify(result.style.sourcemap), "utf8").yield(result);
+    }
+    return result;
 
   }).then(function(result) {
     return {
       source: input,
       result: {
           filesRead: [input].concat(result.style.deps()),
-          filesWritten: [output]
+          filesWritten: [output].concat((result.style.sourcemap && !result.style.options.sourceMapInline) ? [output + ".map"] : [])
       }
     };
   }).catch(function(e) {
@@ -61,9 +93,7 @@ function processor(input, output) {
 
 }
 
-
 jst.process({processor: processor, inExt: ".styl", outExt: (args.options.compress? ".min.css" : ".css")}, args);
-
 
 /**
  * Utility to take a stylus error object and coerce it into a Problem object.

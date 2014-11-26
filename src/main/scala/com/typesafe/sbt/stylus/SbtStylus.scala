@@ -13,6 +13,13 @@ object Import {
 
     val compress = SettingKey[Boolean]("stylus-compress", "Compress output by removing some whitespaces.")
     val useNib = SettingKey[Boolean]("stylus-nib", "Use stylus nib.")
+    val includeCSS = SettingKey[Boolean]("stylus-includeCSS", "Includes css on import.")
+    val inlineImages = SettingKey[Boolean]("stylus-inlineImages", "Encodes inline images.")
+    val inlineFunction = SettingKey[String]("stylus-inlineFunction", "Sets the stylus function name for inline image encoding.")
+    val inlineThreshold = SettingKey[Int]("stylus-inlineThreshold", "Sets the byte threshold for inline image encoding.")
+    val sourceMap = SettingKey[Boolean]("stylus-sourceMap", "Flag for using sourcemaps.")
+    val sourceMapInline = SettingKey[Boolean]("stylus-sourceMapInline", "Sets the sourcemap type to inline.")
+    val sourceMapRoot = SettingKey[String]("stylus-sourceMapRoot", "Sets the sourcemap root path.")
   }
 
 }
@@ -36,13 +43,27 @@ object SbtStylus extends AutoPlugin {
 
     jsOptions := JsObject(
       "compress" -> JsBoolean(compress.value),
-      "useNib" -> JsBoolean(useNib.value)
+      "useNib" -> JsBoolean(useNib.value),
+      "includeCSS" -> JsBoolean(includeCSS.value),
+      "inlineImages" -> JsBoolean(inlineImages.value),
+      "inlineFunction" -> JsString(inlineFunction.value),
+      "inlineThreshold" -> JsNumber(inlineThreshold.value),
+      "sourceMap" -> JsBoolean(sourceMap.value),
+      "sourceMapInline" -> JsBoolean(sourceMapInline.value),
+      "sourceMapRoot" -> JsString(sourceMapRoot.value)
     ).toString()
   )
 
   override def projectSettings = Seq(
     compress := false,
-    useNib := false
+    useNib := false,
+    includeCSS := false,
+    inlineImages := false,
+    inlineFunction := "url",
+    inlineThreshold := 10000,
+    sourceMap := false,
+    sourceMapInline := false,
+    sourceMapRoot := ""
 
   ) ++ inTask(stylus)(
     SbtJsTask.jsTaskSpecificUnscopedSettings ++
