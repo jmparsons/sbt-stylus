@@ -47,6 +47,10 @@ function processor(input, output) {
       sourcemap = sourcemap || {};
       sourcemap.sourceRoot = options.sourceMapRoot;
     }
+    if (options.sourceMapBase) {
+      sourcemap = sourcemap || {};
+      sourcemap.basePath = options.sourceMapBase;
+    }
     if (sourcemap) {
       style.set('filename', input);
       style.set('sourcemap', sourcemap);

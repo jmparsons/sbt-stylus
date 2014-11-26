@@ -13,13 +13,14 @@ object Import {
 
     val compress = SettingKey[Boolean]("stylus-compress", "Compress output by removing some whitespaces.")
     val useNib = SettingKey[Boolean]("stylus-nib", "Use stylus nib.")
-    val includeCSS = SettingKey[Boolean]("stylus-includeCSS", "Includes css on import.")
-    val inlineImages = SettingKey[Boolean]("stylus-inlineImages", "Encodes inline images.")
-    val inlineFunction = SettingKey[String]("stylus-inlineFunction", "Sets the stylus function name for inline image encoding.")
-    val inlineThreshold = SettingKey[Int]("stylus-inlineThreshold", "Sets the byte threshold for inline image encoding.")
-    val sourceMap = SettingKey[Boolean]("stylus-sourceMap", "Flag for using sourcemaps.")
-    val sourceMapInline = SettingKey[Boolean]("stylus-sourceMapInline", "Sets the sourcemap type to inline.")
-    val sourceMapRoot = SettingKey[String]("stylus-sourceMapRoot", "Sets the sourcemap root path.")
+    val includeCSS = SettingKey[Boolean]("stylus-include-css", "Includes css on import.")
+    val inlineImages = SettingKey[Boolean]("stylus-inline-images", "Encodes inline images.")
+    val inlineFunction = SettingKey[String]("stylus-inline-function", "Sets the stylus function name for inline image encoding.")
+    val inlineThreshold = SettingKey[Int]("stylus-inline-threshold", "Sets the byte threshold for inline image encoding.")
+    val sourceMap = SettingKey[Boolean]("stylus-source-map", "Flag for using sourcemaps.")
+    val sourceMapInline = SettingKey[Boolean]("stylus-source-map-inline", "Sets the sourcemap type to inline.")
+    val sourceMapRoot = SettingKey[String]("stylus-source-map-root", "Sets the sourcemap root path.")
+    val sourceMapBase = SettingKey[String]("stylus-source-map-base", "Sets the sourcemap base path.")
   }
 
 }
@@ -50,7 +51,8 @@ object SbtStylus extends AutoPlugin {
       "inlineThreshold" -> JsNumber(inlineThreshold.value),
       "sourceMap" -> JsBoolean(sourceMap.value),
       "sourceMapInline" -> JsBoolean(sourceMapInline.value),
-      "sourceMapRoot" -> JsString(sourceMapRoot.value)
+      "sourceMapRoot" -> JsString(sourceMapRoot.value),
+      "sourceMapBase" -> JsString(sourceMapBase.value)
     ).toString()
   )
 
@@ -63,7 +65,8 @@ object SbtStylus extends AutoPlugin {
     inlineThreshold := 10000,
     sourceMap := false,
     sourceMapInline := false,
-    sourceMapRoot := ""
+    sourceMapRoot := "",
+    sourceMapBase := ""
 
   ) ++ inTask(stylus)(
     SbtJsTask.jsTaskSpecificUnscopedSettings ++
